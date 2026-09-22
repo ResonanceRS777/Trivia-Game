@@ -22,6 +22,16 @@ questions: list[dict[str, str | list[str]]] = [
         "choices": ["A) Venus", "B) Mars", "C) Jupiter", "D) Saturn"],
         "answer": "B",
     },
+    {
+        "question": "How many continents are there?",
+        "choices": ["A) 5", "B) 6", "C) 7", "D) 8"],
+        "answer": "C",
+    },
+    {
+        "question": "What does CPU stand for?",
+        "choices": ["A) Central Processing Unit", "B) Computer Personal Unit", "C) Central Program Utility", "D) Core Processing Unit"],
+        "answer": "A",
+    }
 ]
 
 print("+-----------------------------------------------------------------+")
