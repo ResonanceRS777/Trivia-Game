@@ -75,9 +75,9 @@ while play_again == "Y":
         print("When your parents dropped you off at the bus stop, did you even get on?")
 
     if score == len(questions):
-        print("Aced.")
-
-    if score > 0 & score < len(questions):
+        print("You got the perfect score!")
+    
+    elif score > 0 & score < len(questions):
         print("You could've done better, but at least you did better than zero.")
 
     print("+-----------------------------------------------------------------+")
