@@ -77,7 +77,7 @@ while play_again == "Y":
     if score == len(questions):
         print("You got the perfect score!")
     
-    elif score > 0 & score < len(questions):
+    elif score > 0 and score < len(questions):
         print("You could've done better, but at least you did better than zero.")
 
     print("+-----------------------------------------------------------------+")
