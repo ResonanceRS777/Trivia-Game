@@ -13,6 +13,7 @@ answer to each one, and the game keeps track of how many they got right.
 # that bundles together everything that question needs.
 
 questions: list[dict[str, str | list[str]]] = [
+    # ---------------------------- Geography ----------------------------
     {
         "question": "What is the capital of France?", # "question" -> the text shown to the player.
         "choices": [ # "choices" -> the list of choices shown to the player.
@@ -50,17 +51,189 @@ questions: list[dict[str, str | list[str]]] = [
         "difficulty": "Easy",
     },
     {
+    "question": "Which river is widely recognized as the longest river in the world?",
+    "choices": [
+        "A) Nile River",
+        "B) Amazon River",
+        "C) Yangtze River",
+        "D) Mississippi River",
+        ],
+        "answer": "A",
+        "category": "Geography",
+        "difficulty": "Medium",
+    },
+    {
+        "question": "What is the capital of Australia?",
+        "choices": [
+            "A) Sydney",
+            "B) Melbourne",
+            "C) Camberra",
+            "D) Perth"
+        ],
+        "answer": "C",
+        "category": "Geography",
+        "difficulty": "Medium",
+    },
+    {
+        "question": "Which desert is the largest hot desert in the world?",
+        "choices": [
+            "A) Gobi Desert",
+            "B) Sahara Desert",
+            "C) Kalahari Desert",
+            "D) Arabian Desert"
+        ],
+        "answer": "B",
+        "category": "Geography",
+        "difficulty": "Medium",
+    },
+    {
+        "question": "Which mountain range is the longest on land?",
+        "choices": [
+            "A) Rocky Mountains",
+            "B) Himalayas",
+            "C) Andes",
+            "D) Alps"
+        ],
+        "answer": "C",
+        "category": "Geography",
+        "difficulty": "Hard",
+    },
+    {
+        "question": "Which two countries share the longest international border?",
+        "choices": [
+            "A) Russia and China",
+            "B) Canada and the United States",
+            "C) Argentina and Chile",
+            "D) India and Pakistan"
+        ],
+        "answer": "B",
+        "category": "Geography",
+        "difficulty": "Hard",
+    },
+    {
+        "question": "Which is the deepest lake in the world?",
+        "choices": [
+            "A) Lake Superior",
+            "B) Lake Virtoria",
+            "C) Lake Tanganyika",
+            "D) Lake Bailkal"
+        ],
+        "answer": "D",
+        "category": "Geography",
+        "difficulty": "Hard",
+    },
+    # ---------------------------- Science ----------------------------
+    {
         "question": "Which planet is known as the Red Planet?",
         "choices": [
             "A) Venus",
             "B) Mars",
             "C) Jupiter",
-            "D) Saturn"
-            ],
+            "D) Saturn",
+        ],
         "answer": "B",
         "category": "Science",
         "difficulty": "Easy",
     },
+    {
+        "question": "Which gas do plants absorb from the air to make food during photosynthesis?",
+        "choices": [
+            "A) Oxygen",
+            "B) Nitrogen",
+            "C) Carbon dioxide",
+            "D) Hydrogen",
+        ],
+        "answer": "C",
+        "category": "Science",
+        "difficulty": "Easy",
+    },
+    {
+        "question": "At sea level, water boils at what temperature in degrees Celsius?",
+        "choices": [
+            "A) 90",
+            "B) 100",
+            "C) 212",
+            "D) 50",
+        ],
+        "answer": "B",
+        "category": "Science",
+        "difficulty": "Easy",
+    },
+    {
+        "question": "What is the chemical symbol for gold?",
+        "choices": [
+            "A) Go",
+            "B) Gd",
+            "C) Ag",
+            "D) Au",
+        ],
+        "answer": "D",
+        "category": "Science",
+        "difficulty": "Medium",
+    },
+    {
+        "question": 'Which cellular organelle is famously known as the "powerhouse of the cell?"',
+        "choices": [
+            "A) Nucleus",
+            "B) Ribosome",
+            "C) Mitochondira",
+            "D) Endoplasmic reticulum",
+        ],
+        "answer": "C",
+        "category": "Science",
+        "difficulty": "Medium",
+    },
+    {
+        "question": "What is the most abundant gas in Earth's atmosphere?",
+        "choices": [
+            "A) Oxygen",
+            "B) Nitrogen",
+            "C) Carbon dioxide",
+            "D) Argon",
+        ],
+        "answer": "B",
+        "category": "Science",
+        "difficulty": "Medium",
+    },
+    {
+        "question": ("Which physicist revolutionized modern physics with the publication "
+        "of the theory of general relativity in 1915?"
+        ),
+        "choices": [
+            "A) Albert Einstein",
+            "B) Isaac Newton",
+            "C) Niels Bohr",
+            "D) Henri Matisse",
+        ],
+        "answer": "A",
+        "category": "Science",
+        "difficulty": "Hard",
+    },
+    {
+        "question": "What is the most abundant element in the universe?",
+        "choices": [
+            "A) Helium",
+            "B) Hydrogen",
+            "C) Oxygen",
+            "D) Carbon",
+        ],
+        "answer": "B",
+        "category": "Science",
+        "difficulty": "Hard",
+    },
+    {
+        "question": "What is the SI unit of electrical resistance?",
+        "choices": [
+            "A) Volt",
+            "B) Watt",
+            "C) Ohm",
+            "D) Ampere",
+        ],
+        "answer": "C",
+        "category": "Science",
+        "difficulty": "Hard",
+    },
+    # ---------------------------- Technology ----------------------------
     {
         "question": "What does CPU stand for?",
         "choices": [
@@ -74,55 +247,100 @@ questions: list[dict[str, str | list[str]]] = [
         "difficulty": "Easy",
     },
     {
-        "question": "What is the chemical symbol for gold?",
+        "question": "What does USB stand for?",
         "choices": [
-            "A) Go",
-            "B) Gd",
-            "C) Ag",
-            "D) Au"
+            "A) United System Board",
+            "B) Univeral Serial Bus",
+            "C) Unified Software Backup",
+            "D) Universal Storage Block"
         ],
-        "answer": "D",
-        "category": "Science",
+        "answer": "B",
+        "category": "Technology",
         "difficulty": "Easy",
     },
     {
-        "question": "Which river is widely recognized as the longest river in the world?",
+        "question": 'What does the "www" in a website address stand for?',
         "choices": [
-            "A) Nile River",
-            "B) Amazon River",
-            "C) Yangtze River",
-            "D) Mississippi River",
-        ],
-        "answer": "A",
-        "category": "Geography",
-        "difficulty": "Easy",
-    },
-    {
-        "question": 'Which cellular organelle is famously known as the "powerhouse of the cell"?',
-        "choices": [
-            "A) Nucleus",
-            "B) Ribosome",
-            "C) Mitochondria",
-            "D) Endoplasmic reticulum",
+            "A) Wide World Web",
+            "B) World Web Wide",
+            "C) World Wide Web",
+            "D) Web World Wide",
         ],
         "answer": "C",
-        "category": "Science",
+        "category": "Technology",
         "difficulty": "Easy",
     },
     {
-        "question": (
-            "Which physicist revolutionized modern physics with the publication "
-            "of the theory of general relativity in 1915?"
-        ),
+        "question": "What does HTML stand for?",
         "choices": [
-            "A) Albert Einstein",
-            "B) Isaac Newton",
-            "C) Niels Bohr",
-            "D) Henri Matisse",
+            "A) High Transfer Markup Language",
+            "B) HyperText Machine Language",
+            "C) Home Tool Markup Language",
+            "D) HyperText Markup Language",
         ],
-        "answer": "A",
-        "category": "Science",
-        "difficulty": "Easy",
+        "answer": "D",
+        "category": "Technology",
+        "difficulty": "Medium",
+    },
+    {
+        "question": "How many bits are in one byte?",
+        "choices": [
+            "A) 4",
+            "B) 8",
+            "C) 16",
+            "D) 32",
+        ],
+        "answer": "B",
+        "category": "Technology",
+        "difficulty": "Medium",
+    },
+    {
+        "question": "Which type of computer memory loses its contents when the power is turned off?",
+        "choices": [
+            "A) Hard disk",
+            "B) SSD",
+            "C) RAM",
+            "D) USB flash drive",
+        ],
+        "answer": "C",
+        "category": "Technology",
+        "difficulty": "Medium",
+    },
+    {
+        "question": "Who created the Python programming language?",
+        "choices": [
+            "A) Linus Torvalds",
+            "B) Guido van Rossum",
+            "C) James Gosling",
+            "D) Bjarne Stroustrup",
+        ],
+        "answer": "B",
+        "category": "Technology",
+        "difficulty": "Hard",
+    },
+    {
+        "question": "In networking, what does DNS stand for?",
+        "choices": [
+            "A) Digital Network Service",
+            "B) Data Naming Standard",
+            "C) Domain Name System",
+            "D) Dynamic Node Server",
+        ],
+        "answer": "C",
+        "category": "Technology",
+        "difficulty": "Hard",
+    },
+    {
+        "question": "What is the binary number 11010 equal to in decimal?",
+        "choices": [
+            "A) 22",
+            "B) 26",
+            "C) 28",
+            "D) 30",
+        ],
+        "answer": "B",
+        "category": "Technology",
+        "difficulty": "Hard",
     },
 ]
 
@@ -132,6 +350,7 @@ category_options: list[str] = [
     "Technology",
     "All Categories",
 ]
+
 difficulty_options: list[str] = [
     "Easy",
     "Medium",
