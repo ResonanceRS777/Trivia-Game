@@ -7,6 +7,8 @@ is shown the matching questions in a random order, types the letter of their
 answer to each one, and the game keeps track of how many they got right.
 """
 
+import random
+from typing import cast
 
 # This is the full set of trivia questions. It's a LIST of DICTIONARIES: each
 # each item in the list is one question, and each question is a dictionary
@@ -187,7 +189,7 @@ questions: list[dict[str, str | list[str]]] = [
         "question": "What is the most abundant gas in Earth's atmosphere?",
         "choices": [
             "A) Oxygen",
-            "B) Nitrogen",
+            "B) Hydrogen",
             "C) Carbon dioxide",
             "D) Argon",
         ],
@@ -402,48 +404,97 @@ while play_again == "Y":
     )
     print()
 
-    score: int = 0  # score  -> counts how many questions the player has gotten right so far.
-    index: int = 0  # index  -> tracks which question in the "questions" list we're currently on.
-
     # Keep only the questions that match the selected category and difficulty.
     question_pool: list[dict[str, str | list[str]]] = []
 
-    while index < len(questions): # Outer loop: runs once per question. It keeps going as long as there are still questions left to ask
-        current_question = questions[index] # Pull out the single dictionary for whichever question the player is on right now, giving easy access to the "question", "choices", and "answer" values.
+    for question in questions:
+        question_category = cast(str, question["category"])
+        question_difficulty = cast(str, question["difficulty"])
 
-        print(f"Question {index + 1}: {current_question['question']}") # Show the question text. index + 1 is just for display, so the player
+        category_matches: bool = (
+            category == "All Categories" or question_category == category
+        )
+        difficulty_matches: bool = (
+            difficulty == "All difficulties"
+            or question_difficulty == difficulty
+        )
+
+        if category_matches and difficulty_matches:
+            question_pool.append(question)
+
+    # Save the total because question_pool shrinks as questions are asked.
+    total_questions: int = len(question_pool)
+
+    # Safety net in case a category/difficulty combination has no questions.
+    if total_questions == 0:
+        print(
+            "Sorry, there are no questions for that category and difficulty."
+            "Please choose again."
+        )
+        print()
+        continue
+
+    print(f"Starting a game with {total_questions} question(s). Good luck!")
+    print()
+
+    score: int = 0  # score  -> counts how many questions the player has gotten right so far.
+    index: int = 0  # index  -> tracks which question in the "questions" list we're currently on.
+
+    while len(question_pool) > 0:
+        random_position: int = random.randint(0, len(question_pool) - 1)
+        current_question = question_pool.pop(random_position)
+
+        current_category = cast(str, current_question["category"])
+        current_difficulty = cast(str, current_question["difficulty"])
+        question_text = cast(str, current_question["question"])
+        choices = cast(list[str], current_question["choices"])
+        correct_answer = cast(str, current_question["answer"])
+
+        print(
+            f"Question {index + 1} [{current_category} - {current_difficulty}]: "
+            f"{current_question['question']}"
+        )
 
         choice_index = 0
-        while choice_index < len(current_question["choices"]): # Inner loop: runs once per choice for the current question. It keeps going as long as there are choices left to show.
-            print(current_question["choices"][choice_index]) # Show the choice text. The choices are already lettered, so we don't need to add letters here.
+        while choice_index < len(choices): # Inner loop: runs once per choice for the current question. It keeps going as long as there are choices left to show.
+            print(choices[choice_index]) # Show the choice text. The choices are already lettered, so we don't need to add letters here.
             choice_index += 1 # Increment the choice_index so we can move on to the next choice in the next iteration of this inner loop.
 
-        valid_letters = [choice[0] for choice in current_question["choices"]] # ["A", "B", "C", "D"] pulled from "A) Berlin", etc.
+        valid_letters: list[str] = []
+        for choice in choices:
+            valid_letters.append(choice[0])
 
-        answer = input("Your answer (just the letter): ").strip().upper()
+        answer: str = input("Your answer (just the letter): ").strip().upper()
+
         while answer not in valid_letters: # Keep re-asking until they actually type one of the real choices.
-            print(f"'{answer}' isn't one of the choices. Please enter one of: {', '.join(valid_letters)}")
+            print(
+                f"'{answer}' isn't one of the choices. "
+                f"Please enter one of: {', '.join(valid_letters)}"
+            )
             answer = input("Your answer (just the letter): ").strip().upper()
 
-        if answer == current_question["answer"]: # If the player's answer matches the correct answer for this question, they got it right.
+        if answer == correct_answer: # If the player's answer matches the correct answer for this question, they got it right.
             print("Correct!")
             score += 1
         else:
-            print(f"Sorry, the correct answer was {current_question['answer']}.")
+            print(f"Sorry that's incorrect, the correct answer was {correct_answer}.")
 
         print()
         index += 1
 
     print("+-----------------------------------------------------------------+")
-    print(f"You scored {score} out of {len(questions)}!") # Displays the final score.
+    print(f"You scored {score} out of {total_questions}!") # Displays the final score.
 
     if score == 0:
-        print("When your parents dropped you off at the bus stop, did you even get on?")
+        print(
+            "When your parents dropped you off at the bus stop, "
+            "did you even get on?"
+        )
 
-    if score == len(questions):
+    elif score == total_questions:
         print("You got the perfect score!")
 
-    elif score > 0 and score < len(questions):
+    else:
         print("You could've done better, but at least you did better than zero.")
 
     print("+-----------------------------------------------------------------+")
