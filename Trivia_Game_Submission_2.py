@@ -7,8 +7,9 @@ is shown the matching questions in a random order, types the letter of their
 answer to each one, and the game keeps track of how many they got right.
 """
 
-import random
-from typing import cast
+import random # Allows .randint importation. Gives the ability of for the questions to be randomized.
+from pathlib import Path # Most efficient way of creating files on the user's computer.
+from typing import cast # Pylance
 
 # This is the full set of trivia questions. It's a LIST of DICTIONARIES: each
 # each item in the list is one question, and each question is a dictionary
@@ -22,7 +23,7 @@ questions: list[dict[str, str | list[str]]] = [
             "A) Berlin",
             "B) Madrid",
             "C) Paris",
-            "D) Rome"
+            "D) Rome",
         ],
         "answer": "C", # "answer" -> the correct answer.
         "category": "Geography", # "category" -> the topic the question belongs to.
@@ -34,7 +35,7 @@ questions: list[dict[str, str | list[str]]] = [
             "A) 5",
             "B) 6",
             "C) 7",
-            "D) 8"
+            "D) 8",
         ],
         "answer": "C",
         "category": "Geography",
@@ -70,7 +71,7 @@ questions: list[dict[str, str | list[str]]] = [
             "A) Sydney",
             "B) Melbourne",
             "C) Camberra",
-            "D) Perth"
+            "D) Perth",
         ],
         "answer": "C",
         "category": "Geography",
@@ -82,7 +83,7 @@ questions: list[dict[str, str | list[str]]] = [
             "A) Gobi Desert",
             "B) Sahara Desert",
             "C) Kalahari Desert",
-            "D) Arabian Desert"
+            "D) Arabian Desert",
         ],
         "answer": "B",
         "category": "Geography",
@@ -94,7 +95,7 @@ questions: list[dict[str, str | list[str]]] = [
             "A) Rocky Mountains",
             "B) Himalayas",
             "C) Andes",
-            "D) Alps"
+            "D) Alps",
         ],
         "answer": "C",
         "category": "Geography",
@@ -106,7 +107,7 @@ questions: list[dict[str, str | list[str]]] = [
             "A) Russia and China",
             "B) Canada and the United States",
             "C) Argentina and Chile",
-            "D) India and Pakistan"
+            "D) India and Pakistan",
         ],
         "answer": "B",
         "category": "Geography",
@@ -118,7 +119,7 @@ questions: list[dict[str, str | list[str]]] = [
             "A) Lake Superior",
             "B) Lake Virtoria",
             "C) Lake Tanganyika",
-            "D) Lake Bailkal"
+            "D) Lake Bailkal",
         ],
         "answer": "D",
         "category": "Geography",
@@ -346,6 +347,8 @@ questions: list[dict[str, str | list[str]]] = [
     },
 ]
 
+# The final option in each menu disables filtering, allowing the player to
+# include every category or every difficulty.
 category_options: list[str] = [
     "Geography",
     "Science",
@@ -360,32 +363,65 @@ difficulty_options: list[str] = [
     "All difficulties"
 ]
 
+# Extention: file I/O saves the player's best accuracy between program runs.
+# Using the script's folder keeps the save file in a predictable location.
+HIGH_SCORE_FILE: Path = Path(__file__).with_name("trivia_high_score.txt")
 
-# This function displays a numbered menu and lets the player choose an option.
-# It returns the text of the selected option as a string.
-def choose_from_menu(title: str, options: list[str]) -> str:
+# Reusable function handles both menus, so input validation only needs to be written once
+def choose_from_menu(title: str, options: list[str]) -> str: # Display a numbered menu and return the option selected by the player.
     print(title)
 
-    # valid_numbers holds the menu numbers the player is allowed to type.
-    valid_numbers: list[str] = []
+    # enumerate gives each option a number starting at 1.
+    for position, option in enumerate(options, start=1):
+        print(f"    {position}) {option}") # Display the current option with its corresponding menu number.
 
-    # Loop through every option using its index (position).
-    for position in range(len(options)):
-        print(f"    {position + 1}) {options[position]}") # Display the current option with its corresponding menu number.
-        valid_numbers.append(str(position + 1)) # Convert the displayed menu number into a string. Add it to valid_numbers.
+    # Convert input to an integer inside try/except so letters and other
+    # invalid input cause another prompt instead of crashing the program.
+    while True:
+        choice: str = input("Your choice number): ").strip()
 
-    choice: str = input("Your choice (number): ").strip() # Asks the player to enter the number of their desired option.
+        try: # Forces player to enter a valid letter.
+            selected_number: int = int(choice)
+        except ValueError:
+            print("Please enter a whole-number menu choice.")
+            continue
 
-    # Keep re-asking until the player types one of the real menu numbers.
-    while choice not in valid_numbers:
-        print(
-            f"'{choice}' isn't one of the options. "
-            f"Please enter one of: {', '.join(valid_numbers)}"
-        )
-        choice = input("Your choice (number): ").strip() 
+        if 1 <= selected_number <= len(options): # Checks both ends of the valid range.
+            return options[selected_number -1]
 
-    # The menu starts at 1 but list indexes start at 0, so subtract 1.
-    return options[int(choice) - 1]
+        print(f"Please enter a number from 1 to {len(options)}")
+
+# This function reads the best saved score.
+def load_best_accuracy(filename: Path) -> float:
+    # Load the saved best accuracy, or return zero if no valid record exists.
+    try:
+        with filename.open("r", encoding="utf-8") as score_file:
+            saved_value: str = score_file.read().strip()
+
+        saved_accuracy: float = float(saved_value)
+        if 0.0 <= saved_accuracy <= 100.0:
+            return saved_accuracy
+
+        # Ignore invalid values rather than letting a damage save affect play.
+        return 0.0
+    except FileNotFoundError:
+        # A missing file simply means the player has not set a saved record yet.
+        return 0.0
+    except (OSError, ValueError):
+        print("The saved record could not be read; starting without a saved record.")
+        return 0.0
+
+# This function writes a new personal best percentage and returns 
+def save_best_accuracy(filename: Path, accuracy: float) -> bool:
+    # Save a new best accuracy and report whether the save succeeded.
+    try:
+        with filename.open("w", encoding="utf-8") as score_file:
+            score_file.write(f"{accuracy:.2f}")
+        return True
+    except OSError:
+        #The game should remain playable even if the folder is read-only.
+        return False
+
 
 play_again: str = "Y"
 
@@ -399,9 +435,7 @@ while play_again == "Y":
 
     category: str = choose_from_menu("Choose a category:", category_options)
     print()
-    difficulty: str = choose_from_menu(
-        "Choose a difficulty", difficulty_options
-    )
+    difficulty: str = choose_from_menu("Choose a difficulty", difficulty_options)
     print()
 
     # Keep only the questions that match the selected category and difficulty.
@@ -422,7 +456,7 @@ while play_again == "Y":
         if category_matches and difficulty_matches:
             question_pool.append(question)
 
-    # Save the total because question_pool shrinks as questions are asked.
+    # Save the total before popping questions from the pool during the round.
     total_questions: int = len(question_pool)
 
     # Safety net in case a category/difficulty combination has no questions.
@@ -438,32 +472,28 @@ while play_again == "Y":
     print()
 
     score: int = 0  # score  -> counts how many questions the player has gotten right so far.
-    index: int = 0  # index  -> tracks which question in the "questions" list we're currently on.
+    question_number: int = 0  # question_number  -> tracks which question in the "questions" list we're currently on.
 
+    # Removing each random question prevents it from appearing twice in a round.
     while len(question_pool) > 0:
         random_position: int = random.randint(0, len(question_pool) - 1)
-        current_question = question_pool.pop(random_position)
+        current_question: dict[str, str | list[str]] = question_pool.pop(random_position)
 
-        current_category = cast(str, current_question["category"])
-        current_difficulty = cast(str, current_question["difficulty"])
-        question_text = cast(str, current_question["question"])
-        choices = cast(list[str], current_question["choices"])
-        correct_answer = cast(str, current_question["answer"])
+        current_category: str = cast(str, current_question["category"])
+        current_difficulty: str = cast(str, current_question["difficulty"])
+        question_text: str = cast(str, current_question["question"])
+        choices: list[str] = cast(list[str], current_question["choices"])
+        correct_answer: str = cast(str, current_question["answer"])
 
         print(
-            f"Question {index + 1} [{current_category} - {current_difficulty}]: "
-            f"{current_question['question']}"
+            f"Question {question_number + 1}"
+            f"[{current_category} - {current_difficulty}]: {question_text}"
         )
 
-        choice_index = 0
-        while choice_index < len(choices): # Inner loop: runs once per choice for the current question. It keeps going as long as there are choices left to show.
-            print(choices[choice_index]) # Show the choice text. The choices are already lettered, so we don't need to add letters here.
-            choice_index += 1 # Increment the choice_index so we can move on to the next choice in the next iteration of this inner loop.
-
-        valid_letters: list[str] = []
         for choice in choices:
-            valid_letters.append(choice[0])
+            print(choice)
 
+        valid_letters: list[str] = [choice[0] for choice in choices]
         answer: str = input("Your answer (just the letter): ").strip().upper()
 
         while answer not in valid_letters: # Keep re-asking until they actually type one of the real choices.
@@ -480,7 +510,7 @@ while play_again == "Y":
             print(f"Sorry that's incorrect, the correct answer was {correct_answer}.")
 
         print()
-        index += 1
+        question_number += 1
 
     print("+-----------------------------------------------------------------+")
     print(f"You scored {score} out of {total_questions}!") # Displays the final score.
@@ -496,6 +526,22 @@ while play_again == "Y":
 
     else:
         print("You could've done better, but at least you did better than zero.")
+
+    # Accuracy makes results comparable between short filtered rounds and full games.
+    current_accuracy: float = (score / total_questions) * 100.0
+    previous_best: float = load_best_accuracy(HIGH_SCORE_FILE)
+
+    print(f"This round's accuracy: {current_accuracy:.1f}%")
+
+    if current_accuracy > previous_best:
+        if save_best_accuracy(HIGH_SCORE_FILE, current_accuracy):
+            print(f"New personal best saved: {current_accuracy:.1f}%!")
+        else:
+            print(
+                "you achieved a new personal best, but the record could not be saved."
+            )
+    else:
+        print(f"Personal best accuracy: {previous_best:.1f}%")
 
     print("+-----------------------------------------------------------------+")
     print()
