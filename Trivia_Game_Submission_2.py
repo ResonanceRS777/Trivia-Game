@@ -459,7 +459,9 @@ def save_best_accuracy(filename: Path, accuracy: float, category: str, difficult
     except OSError:
         return False    # The lets the game remain playable even if the file is read-only.
 
+# Function for deleting all of the user's saved scores.
 def reset_high_scores(filename: Path) -> None:
+    # If the user doesn't have a file to delete, it will tell them so.
     if not filename.exists():
         print("There are no saved high scores to delete.")
         return
@@ -471,8 +473,10 @@ def reset_high_scores(filename: Path) -> None:
         return
 
     try:
+        # Clear saved scores while keeping the file available for future records.
         filename.unlink()
         print("All saved high scores have been deleted.")
+    # Prevents the game from crashing.
     except OSError:
         print("The saved high scores could not be deleted.")
 
