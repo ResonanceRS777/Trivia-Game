@@ -1,19 +1,20 @@
 """
-trivia_game.py
+Trivia_Game Submission 2.py
 Roland, Gabby, Abir
 
-A multiple-choice trivia game. The player picks a category and a difficulty,
+A multiple-choice trivia game. The player picks a category and difficulty,
 is shown the matching questions in a random order, types the letter of their
 answer to each one, and the game keeps track of how many they got right.
 """
 
-import random # Allows .randint importation. Gives the ability of for the questions to be randomized.
-from pathlib import Path # Most efficient method for creating files on the user's computer.
-from typing import cast # Importing cast tells Pylance a dictionary value's expected type e.g. str or list[str]
+import random   # Allows .randint importation. Gives the ability of for the questions to be randomized.
+from datetime import datetime   # Gives datetime.now() so each saved score can be stamped with the date and time it was set.
+from pathlib import Path    # Most efficient method for creating files on the user's computer.
+from typing import cast     # Importing cast tells Pylance a dictionary value's expected type e.g. str or list[str]
 
-# This is the full set of trivia questions. It's a LIST of DICTIONARIES: each
-# each item in the list is one question, and each question is a dictionary
-# that bundles together everything that question needs.
+"""This is the full set of trivia questions. It's a LIST of DICTIONARIES: each
+item in the list is one question, and each question is a dictionary
+that bundles together everything that question needs."""
 
 questions: list[dict[str, str | list[str]]] = [
     # ---------------------------- Geography ----------------------------
@@ -70,7 +71,7 @@ questions: list[dict[str, str | list[str]]] = [
         "choices": [
             "A) Sydney",
             "B) Melbourne",
-            "C) Camberra",
+            "C) Canberra",
             "D) Perth",
         ],
         "answer": "C",
@@ -117,9 +118,9 @@ questions: list[dict[str, str | list[str]]] = [
         "question": "Which is the deepest lake in the world?",
         "choices": [
             "A) Lake Superior",
-            "B) Lake Virtoria",
+            "B) Lake Victoria",
             "C) Lake Tanganyika",
-            "D) Lake Bailkal",
+            "D) Lake Baikal",
         ],
         "answer": "D",
         "category": "Geography",
@@ -144,9 +145,9 @@ questions: list[dict[str, str | list[str]]] = [
             "A) Oxygen",
             "B) Nitrogen",
             "C) Carbon dioxide",
-            "D) Hydrogen",
+            "D) Argon",
         ],
-        "answer": "C",
+        "answer": "B",
         "category": "Science",
         "difficulty": "Easy",
     },
@@ -179,7 +180,7 @@ questions: list[dict[str, str | list[str]]] = [
         "choices": [
             "A) Nucleus",
             "B) Ribosome",
-            "C) Mitochondira",
+            "C) Mitochondria",
             "D) Endoplasmic reticulum",
         ],
         "answer": "C",
@@ -253,7 +254,7 @@ questions: list[dict[str, str | list[str]]] = [
         "question": "What does USB stand for?",
         "choices": [
             "A) United System Board",
-            "B) Univeral Serial Bus",
+            "B) Universal Serial Bus",
             "C) Unified Software Backup",
             "D) Universal Storage Block",
         ],
@@ -347,8 +348,7 @@ questions: list[dict[str, str | list[str]]] = [
     },
 ]
 
-# The final option in each menu disables filtering, allowing the player to
-# include every category or every difficulty.
+# The final option in each menu disables filtering, allowing the player to include every category or every difficulty.
 category_options: list[str] = [
     "Geography",
     "Science",
@@ -364,9 +364,9 @@ difficulty_options: list[str] = [
 ]
 
 # Extention: file I/O saves the player's best accuracy between program runs.
-HIGH_SCORE_FILE: Path = Path(__file__).with_name("trivia_high_score.txt")
+HIGH_SCORE_FILE: Path = Path(__file__).with_name("Your Trivia High Score.txt")
 
-# Reusable function handles both menus, so input validation only needs to be written once.
+# Both the category and difficulty menus use this function to display options.
 def choose_from_menu(title: str, options: list[str]) -> str:    # Display a numbered menu and return the option selected by the player.
     print(title)
 
@@ -374,53 +374,88 @@ def choose_from_menu(title: str, options: list[str]) -> str:    # Display a numb
     for position, option in enumerate(options, start = 1):
         print(f"    {position}) {option}")  # Display the current option with its corresponding menu number.
 
-    # Convert input to an integer inside try/except so letters and other
-    # invalid input cause another prompt instead of crashing the program.
+    # Convert the user's input to an integer inside try/except so letters and other invalid input cause another prompt instead of crashing the program.
     while True:
-        choice: str = input("Your choice number): ").strip()
+        choice: str = input("Your choice number: ").strip()
 
-        try:    # Forces player to enter a valid letter.
+        try:    # Forces player to enter a number.
             selected_number: int = int(choice)
+
         except ValueError:
             print("Please enter a whole-number menu choice.")
             continue
 
         if 1 <= selected_number <= len(options):    # Checks both ends of the valid range.
-            return options[selected_number -1]
+            return options[selected_number - 1]
 
         print(f"Please enter a number from 1 to {len(options)}")
 
 # This function reads the best saved score.
 def load_best_accuracy(filename: Path) -> float:
-    # Load the saved best accuracy, or return zero if no valid record exists.
-    try:
-        with filename.open("r", encoding="utf-8") as score_file:
-            saved_value: str = score_file.read().strip()
+    best_accuracy: float = 0.0
 
-        saved_accuracy: float = float(saved_value)
-        if 0.0 <= saved_accuracy <= 100.0:
-            return saved_accuracy
+    try:    # Load the saved best accuracy, or return zero if no valid record exists.
+        with filename.open("r", encoding = "utf-8") as score_file:  # Open the high-score file for reading and close it when finished.
+            for line in score_file:
+                number_text: str = line.split("|", maxsplit = 1)[0].replace("%", "").strip()
 
-        # Ignore invalid values rather than letting a damage save affect play.
-        return 0.0
+                try:
+                    saved_accuracy: float = float(number_text)
+
+                except ValueError:
+                    continue
+
+                if 0.0 <= saved_accuracy <= 100.0 and saved_accuracy > best_accuracy:
+                    best_accuracy = saved_accuracy
+
     except FileNotFoundError:
-        # A missing file simply means the player has not set a saved record yet.
-        return 0.0
-    except (OSError, ValueError):
+        return 0.0  # A missing file simply means the player has not set a saved record yet.
+
+    except OSError:   # Handles file errors without crashing the game.
         print("The saved record could not be read; starting without a saved record.")
         return 0.0
 
-# This function writes a new personal best percentage and returns 
+    return best_accuracy
+
+# Writes a new personal best percentage and returns 
 def save_best_accuracy(filename: Path, accuracy: float) -> bool:
+    timestamp: str = datetime.now().strftime("%m/%d/%Y %I:%M %p")
+
     # Save a new best accuracy and report whether the save succeeded.
     try:
-        with filename.open("w", encoding="utf-8") as score_file:
-            score_file.write(f"{accuracy:.2f}")
-        return True
-    except OSError:
-        #The game should remain playable even if the folder is read-only.
-        return False
+        # Add a newline only when a non-empty score file already exists.
+        separator: str = ""
+        if filename.exists() and filename.stat().st_size > 0:
+            separator = "\n"
 
+        # Append the new record instead of overwriting previously saved scores.
+        with filename.open("a", encoding = "utf-8") as score_file:
+            score_file.write(f"{separator}{accuracy:.2f}% | {timestamp}")
+
+        return True
+
+    except OSError:
+        return False    # The game should remain playable even if the folder is read-only.
+
+def reset_high_scores(filename: Path) -> None:
+    if not filename.exists():
+        print("There are no saved high scores to delete.")
+        return
+
+    confirm: str = input("Delete ALL saved high scores? This can't be undone. (Y/N): ").strip().upper()
+
+    if confirm != "Y":
+        print("Nothing was deleted.")
+        return
+
+    try:
+        filename.unlink()
+        print("All saved high scores have been deleted.")
+
+    except OSError:
+        print("The saved high scores could not be deleted.")
+
+PLAY_AGAIN_PROMPT: str = ("Do you want to play again? (Y/N, or D to delete all saved high scores): ")
 
 play_again: str = "Y"
 
@@ -432,16 +467,18 @@ while play_again == "Y":
     print("+-----------------------------------------------------------------+")
     print()
 
-    # Reuse this function for both menus instead of duplicating validation.
+    # Ask for a category and store the user's selection.
     category: str = choose_from_menu("Choose a category:", category_options)
     print()
+
+    # Use the same menu function for difficulty.
     difficulty: str = choose_from_menu("Choose a difficulty", difficulty_options)
     print()
 
     # Keep only the questions that match the selected category and difficulty.
     question_pool: list[dict[str, str | list[str]]] = []
 
-    # Check every question in the master list to decide whether it matches the two filters.
+    # Checks every question in the master list to decide whether it matches the two filters.
     for question in questions:
         question_category = cast(str, question["category"])
         question_difficulty = cast(str, question["difficulty"])
@@ -549,7 +586,14 @@ while play_again == "Y":
     print()
 
     # Ask the player if they want another round. Anything other than "Y" or "y" ends the outer loop.
-    play_again = input("Do you want to play again? (Y/N): ").strip().upper()
+    # Typing "D" deletes every saved high score (after a confirmation) and then asks the question again.
+    play_again = input(PLAY_AGAIN_PROMPT).strip().upper()
+
+    while play_again == "D":
+        reset_high_scores(HIGH_SCORE_FILE)
+        print()
+        play_again = input(PLAY_AGAIN_PROMPT).strip().upper()
+
     print()
 
 print("Thanks for playing!")
