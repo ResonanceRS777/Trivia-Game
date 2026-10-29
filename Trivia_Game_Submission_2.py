@@ -476,16 +476,6 @@ def reset_high_scores(filename: Path) -> None:
     except OSError:
         print("The saved high scores could not be deleted.")
 
-# Allows the player to quit from any input prompt.
-def get_user_input(prompt: str) -> str:
-    response: str = input(prompt).strip().upper()
-
-    if response == "Q":
-        print("\nExiting the game.")
-        raise SystemExit(0)
-
-    return response
-
 
 play_again_prompt: str = ("Do you want to play again? (Y/N, or D to delete all saved high scores): ")
 
