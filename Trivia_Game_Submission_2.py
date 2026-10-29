@@ -391,13 +391,32 @@ def choose_from_menu(title: str, options: list[str]) -> str:    # Display a numb
         print(f"Please enter a number from 1 to {len(options)}")
 
 # This function reads the best saved score.
-def load_best_accuracy(filename: Path) -> float:
+def load_best_accuracy(filename: Path, category: str, difficulty: str) -> float:
     best_accuracy: float = 0.0
 
     try:    # Load the saved best accuracy, or return zero if no valid record exists.
-        with filename.open("r", encoding = "utf-8") as score_file:  # Open the high-score file for reading and close it when finished.
+        with filename.open("r", encoding = "utf-8") as score_file:  # Opens the high-score file for reading and close it when finished.
             for line in score_file:
-                number_text: str = line.split("|", maxsplit = 1)[0].replace("%", "").strip()
+                # Split the saved record into its separate fields.
+                parts: list[str] = line.split("|", maxsplit = 3)
+
+                # Ignore records that do not contain all required fields.
+                if len(parts) < 4:
+                    continue
+
+                # Extract the saved category and difficulty.
+                saved_category: str = parts[1].partition(":")[2].strip()
+                saved_difficulty: str = parts[2].partition(":")[2].strip()
+
+                # Only compare scores from the same category and difficulty.
+                if (
+                    saved_category != category
+                    or saved_difficulty != difficulty
+                ):
+                    continue
+
+                # Extracts the percentage from the beginning of the record.
+                number_text: str = parts[0].replace("%", "").strip()
 
                 try:
                     saved_accuracy: float = float(number_text)
@@ -405,6 +424,7 @@ def load_best_accuracy(filename: Path) -> float:
                 except ValueError:
                     continue
 
+                # Keeps the highest valid accuracy for this selection.
                 if 0.0 <= saved_accuracy <= 100.0 and saved_accuracy > best_accuracy:
                     best_accuracy = saved_accuracy
 
@@ -418,7 +438,7 @@ def load_best_accuracy(filename: Path) -> float:
     return best_accuracy
 
 # Writes a new personal best percentage and returns 
-def save_best_accuracy(filename: Path, accuracy: float) -> bool:
+def save_best_accuracy(filename: Path, accuracy: float, category: str, difficulty: str) -> bool:
     timestamp: str = datetime.now().strftime("%m/%d/%Y %I:%M %p")
 
     # Save a new best accuracy and report whether the save succeeded.
@@ -430,12 +450,14 @@ def save_best_accuracy(filename: Path, accuracy: float) -> bool:
 
         # Append the new record instead of overwriting previously saved scores.
         with filename.open("a", encoding = "utf-8") as score_file:
-            score_file.write(f"{separator}{accuracy:.2f}% | {timestamp}")
-
+            score_file.write(
+                f"{separator}{accuracy:.2f}% | Category: {category}"
+                f" | Difficulty: {difficulty} | {timestamp}"
+            )
         return True
 
     except OSError:
-        return False    # The game should remain playable even if the folder is read-only.
+        return False    # The lets the game remain playable even if the file is read-only.
 
 def reset_high_scores(filename: Path) -> None:
     if not filename.exists():
@@ -451,28 +473,38 @@ def reset_high_scores(filename: Path) -> None:
     try:
         filename.unlink()
         print("All saved high scores have been deleted.")
-
     except OSError:
         print("The saved high scores could not be deleted.")
 
-PLAY_AGAIN_PROMPT: str = ("Do you want to play again? (Y/N, or D to delete all saved high scores): ")
+# Allows the player to quit from any input prompt.
+def get_user_input(prompt: str) -> str:
+    response: str = input(prompt).strip().upper()
+
+    if response == "Q":
+        print("\nExiting the game.")
+        raise SystemExit(0)
+
+    return response
+
+
+play_again_prompt: str = ("Do you want to play again? (Y/N, or D to delete all saved high scores): ")
 
 play_again: str = "Y"
 
-while play_again == "Y":
+print("+-----------------------------------------------------------------+")
+print("|                    Welcome to the Trivia Game!                  |")
+print("|    Answer each question by typing the letter of your choice.    |")
+print("+-----------------------------------------------------------------+")
+print()
 
-    print("+-----------------------------------------------------------------+")
-    print("|                    Welcome to the Trivia Game!                  |")
-    print("| Answer each question by typing the letter of your choice.       |")
-    print("+-----------------------------------------------------------------+")
-    print()
+while play_again == "Y":
 
     # Ask for a category and store the user's selection.
     category: str = choose_from_menu("Choose a category:", category_options)
     print()
 
     # Use the same menu function for difficulty.
-    difficulty: str = choose_from_menu("Choose a difficulty", difficulty_options)
+    difficulty: str = choose_from_menu("Choose a difficulty:", difficulty_options)
     print()
 
     # Keep only the questions that match the selected category and difficulty.
@@ -567,14 +599,15 @@ while play_again == "Y":
         print("You could've done better, but at least you did better than zero.")
 
     current_accuracy: float = (score / total_questions) * 100.0 # Converts the score to a percentage.
-    previous_best: float = load_best_accuracy(HIGH_SCORE_FILE)  # Loads the previous best from disk.
+    previous_best: float = load_best_accuracy(HIGH_SCORE_FILE, category, difficulty)  # Loads the previous best from disk.
 
     print(f"This round's accuracy: {current_accuracy:.1f}%")
 
     # Only replaces the saved record if the current round beats the previous best.
     if current_accuracy > previous_best:
-        if save_best_accuracy(HIGH_SCORE_FILE, current_accuracy):
+        if save_best_accuracy(HIGH_SCORE_FILE, current_accuracy, category, difficulty):
             print(f"New personal best saved: {current_accuracy:.1f}%!")
+            print('Your high score has been added to "Your Trivia High Score.txt"')
         else:
             print(
                 "you achieved a new personal best, but the record could not be saved."
@@ -587,12 +620,12 @@ while play_again == "Y":
 
     # Ask the player if they want another round. Anything other than "Y" or "y" ends the outer loop.
     # Typing "D" deletes every saved high score (after a confirmation) and then asks the question again.
-    play_again = input(PLAY_AGAIN_PROMPT).strip().upper()
+    play_again = input(play_again_prompt).strip().upper()
 
     while play_again == "D":
         reset_high_scores(HIGH_SCORE_FILE)
         print()
-        play_again = input(PLAY_AGAIN_PROMPT).strip().upper()
+        play_again = input(play_again_prompt).strip().upper()
 
     print()
 
