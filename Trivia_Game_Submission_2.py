@@ -147,7 +147,7 @@ questions: list[dict[str, str | list[str]]] = [
             "C) Carbon dioxide",
             "D) Argon",
         ],
-        "answer": "B",
+        "answer": "C",
         "category": "Science",
         "difficulty": "Easy",
     },
@@ -437,7 +437,7 @@ def load_best_accuracy(filename: Path, category: str, difficulty: str) -> float:
 
     return best_accuracy
 
-# Writes a new personal best percentage and returns 
+# Writes a new personal best percentage and returns.
 def save_best_accuracy(filename: Path, accuracy: float, category: str, difficulty: str) -> bool:
     timestamp: str = datetime.now().strftime("%m/%d/%Y %I:%M %p")
 
