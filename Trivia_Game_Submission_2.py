@@ -611,16 +611,32 @@ while play_again == "Y":
 
     print("+-----------------------------------------------------------------+")
     print()
+    
+# Function for displaying high scores.
+# def display_high_scores(filename: Path) -> None: 
+#     print("\n===== SAVED HIGH SCORES =====\n")
+#     print()
+#     try:
+#         if not filename.exists():
+#             print("There are no saved high scores.")
+#             return
+#         with open("Your Trivia High Score.txt") as:
+            
+#         if not HIGH_SCORE_FILE:
+#             print("There are no saved high scores.")
+#             return
+#         for ... 
 
-    # Ask the player if they want another round. Anything other than "Y" or "y" ends the outer loop.
-    # Typing "D" deletes every saved high score (after a confirmation) and then asks the question again.
-    play_again = input(play_again_prompt).strip().upper()
 
-    while play_again == "D":
+# Ask the player if they want another round. Anything other than "Y" or "y" ends the outer loop.
+# Typing "D" deletes every saved high score (after a confirmation) and then asks the question again.
+play_again = input(play_again_prompt).strip().upper()
+
+while play_again == "D":
         reset_high_scores(HIGH_SCORE_FILE)
         print()
         play_again = input(play_again_prompt).strip().upper()
 
-    print()
+print()
 
 print("Thanks for playing!")
