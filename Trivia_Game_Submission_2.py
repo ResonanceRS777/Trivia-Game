@@ -7,7 +7,7 @@ is shown the matching questions in a random order, types the letter of their
 answer to each one, and the game keeps track of how many they got right.
 """
 
-import random   # Gives .randint importation. Gives the ability of for the questions to be randomized.
+import random   # Allows the question order to eb randomized.
 from datetime import datetime   # Gives datetime.now() so each saved score can be stamped with the date and time it was set.
 from pathlib import Path    # Gives tools for creating and managing file paths.
 from typing import cast     # Tells Pylance the expected type of values retrieved from the question dictionaries.
@@ -55,12 +55,12 @@ questions: list[dict[str, str | list[str]]] = [
         "difficulty": "Easy",
     },
     {
-    "question": "Which river is most commonly recognized as the longest river in the world?",
-    "choices": [
-        "A) Nile River",
-        "B) Amazon River",
-        "C) Yangtze River",
-        "D) Mississippi River",
+        "question": "Which river is most commonly recognized as the longest river in the world?",
+        "choices": [
+            "A) Nile River",
+            "B) Amazon River",
+            "C) Yangtze River",
+            "D) Mississippi River",
         ],
         "answer": "A",
         "category": "Geography",
@@ -201,13 +201,12 @@ questions: list[dict[str, str | list[str]]] = [
     },
     {
         "question": ("Which physicist revolutionized modern physics with the publication "
-        "of the theory of general relativity in 1915?"
-        ),
+        "of the theory of general relativity in 1915?"),
         "choices": [
             "A) Albert Einstein",
             "B) Isaac Newton",
             "C) Niels Bohr",
-            "D) Henri Matisse",
+            "D) Max Planck",
         ],
         "answer": "A",
         "category": "Science",
@@ -366,6 +365,7 @@ difficulty_options: list[str] = [
 # Extension: file I/O saves the player's best accuracy between program runs.
 HIGH_SCORE_FILE: Path = Path(__file__).with_name("Your Trivia High Score.txt")
 
+
 # Allows the player to enter Q or q at any prompt to quit the game.
 def get_input(prompt: str) -> str:
     """Collect user input, convert it to uppercase, and exit if Q is entered."""
@@ -377,6 +377,7 @@ def get_input(prompt: str) -> str:
 
     return user_input
 
+
 # Function for displaying high scores.
 def display_high_scores(filename: Path) -> None:
     """Read and display all saved high-score records from the specified file."""
@@ -385,7 +386,7 @@ def display_high_scores(filename: Path) -> None:
     has_scores: bool = False    # Tracks whether the file has at least one non-empty score record.
 
     try:
-        with filename.open("r", encoding = "utf-8") as score_file:
+        with filename.open("r", encoding="utf-8") as score_file:
             for line in score_file:
                 record: str = line.strip()
 
@@ -428,13 +429,14 @@ def choose_from_menu(title: str, options: list[str]) -> str:
 
         print(f"Please enter a number from 1 to {len(options)}")
 
+
 # This function reads the best saved score.
 def load_best_accuracy(filename: Path, category: str, difficulty: str) -> float:
     """Find and return the highest saved accuracy for the selected category and difficulty."""
     best_accuracy: float = 0.0
 
     try:    # Load the saved best accuracy, or return zero if no valid record exists.
-        with filename.open("r", encoding = "utf-8") as score_file:  # Opens the high score file for reading and closes it when finished.
+        with filename.open("r", encoding="utf-8") as score_file:  # Read the saved records and close the file automatically when finished.
             for line in score_file:
                 # Split the saved record into its separate fields.
                 parts: list[str] = line.split("|", maxsplit = 3)
@@ -476,6 +478,7 @@ def load_best_accuracy(filename: Path, category: str, difficulty: str) -> float:
 
     return best_accuracy
 
+
 # Saves a new personal best and returns whether saving was successful.
 def save_best_accuracy(filename: Path, accuracy: float, category: str, difficulty: str) -> bool:
     """Save a new high-score record with its category, difficulty, and timestamp."""
@@ -489,7 +492,7 @@ def save_best_accuracy(filename: Path, accuracy: float, category: str, difficult
             separator = "\n"
 
         # Append the new record instead of overwriting previously saved scores.
-        with filename.open("a", encoding = "utf-8") as score_file:
+        with filename.open("a", encoding="utf-8") as score_file:
             score_file.write(
                 f"{separator}{accuracy:.2f}% | Category: {category}"
                 f" | Difficulty: {difficulty} | {timestamp}"
@@ -498,6 +501,7 @@ def save_best_accuracy(filename: Path, accuracy: float, category: str, difficult
 
     except OSError:
         return False    # This lets the game remain playable even if the file is read-only.
+
 
 # Function for deleting all of the user's saved scores.
 def reset_high_scores(filename: Path) -> None:
@@ -516,7 +520,7 @@ def reset_high_scores(filename: Path) -> None:
 
     try:
         # Delete the saved high score file's contents.
-        filename.write_text("", encoding = "utf-8")
+        filename.write_text("", encoding="utf-8")
         print("All saved high scores have been deleted.")
     # Prevents the game from crashing.
     except OSError:
@@ -564,7 +568,7 @@ while play_again == "Y":
         )
 
         if category_matches and difficulty_matches:
-            question_pool.append(question)  # Add matching questions to the round-specific pool.
+            question_pool.append(question)  # Keep only questions matching the player's selected category and difficulty.
 
     # Save the total before popping questions from the pool during the round.
     total_questions: int = len(question_pool)
@@ -633,15 +637,21 @@ while play_again == "Y":
     elif score == total_questions:
         print("You got the perfect score!")
 
+    elif score / total_questions >= 0.80:
+        print("Excellent work!")
+
+    elif score / total_questions >= 0.60:
+        print("Good job! Keep practicing.")
+
     else:
         print("You could've done better, but at least you did better than zero.")
 
-    current_accuracy: float = (score / total_questions) * 100.0 # Converts the score to a percentage.
+    current_accuracy: float = round((score / total_questions) * 100.0, 2) # Converts the score to a percentage.
     previous_best: float = load_best_accuracy(HIGH_SCORE_FILE, category, difficulty)  # Loads the previous best from disk.
 
     print(f"This round's accuracy: {current_accuracy:.1f}%")
 
-    # Only replaces the saved record if the current round beats the previous best.
+    # Save another record only when the player beats the previous best.
     if current_accuracy > previous_best:
         if save_best_accuracy(HIGH_SCORE_FILE, current_accuracy, category, difficulty):
             print(f"New personal best saved: {current_accuracy:.1f}%!")
