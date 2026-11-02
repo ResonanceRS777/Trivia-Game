@@ -7,7 +7,7 @@ is shown the matching questions in a random order, types the letter of their
 answer to each one, and the game keeps track of how many they got right.
 """
 
-import random   # Allows the question order to eb randomized.
+import random   # Allows the question order to be randomized.
 from datetime import datetime   # Gives datetime.now() so each saved score can be stamped with the date and time it was set.
 from pathlib import Path    # Gives tools for creating and managing file paths.
 from typing import cast     # Tells Pylance the expected type of values retrieved from the question dictionaries.
