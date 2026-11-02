@@ -368,6 +368,7 @@ HIGH_SCORE_FILE: Path = Path(__file__).with_name("Your Trivia High Score.txt")
 
 # Allows the player to enter Q or q at any prompt to quit the game.
 def get_input(prompt: str) -> str:
+    """Collect user input, convert it to uppercase, and exit if Q is entered."""
     user_input: str = input(prompt).strip().upper()
 
     if user_input.upper() == "Q":
@@ -377,7 +378,8 @@ def get_input(prompt: str) -> str:
     return user_input
 
 # Function for displaying high scores.
-def display_high_scores(filename: Path) -> None: 
+def display_high_scores(filename: Path) -> None:
+    """Read and display all saved high-score records from the specified file."""
     print("\n===== SAVED HIGH SCORES =====\n")
 
     has_scores: bool = False    # Tracks whether the file has at least one non-empty score record.
@@ -402,7 +404,8 @@ def display_high_scores(filename: Path) -> None:
 
 
 # Both the category and difficulty menus use this function to display options.
-def choose_from_menu(title: str, options: list[str]) -> str:    # Display a numbered menu and return the option selected by the player.
+def choose_from_menu(title: str, options: list[str]) -> str:
+    """Display a numbered menu, validate the selection, and return the chosen option."""
     print(title)
 
     # enumerate gives each option a number starting at 1.
@@ -426,7 +429,8 @@ def choose_from_menu(title: str, options: list[str]) -> str:    # Display a numb
         print(f"Please enter a number from 1 to {len(options)}")
 
 # This function reads the best saved score.
-def load_best_accuracy(filename: Path, category: str, difficulty: str) -> float:    # Find the highest saved accuracy for the selected category and difficulty.
+def load_best_accuracy(filename: Path, category: str, difficulty: str) -> float:
+    """Find and return the highest saved accuracy for the selected category and difficulty."""
     best_accuracy: float = 0.0
 
     try:    # Load the saved best accuracy, or return zero if no valid record exists.
@@ -474,6 +478,7 @@ def load_best_accuracy(filename: Path, category: str, difficulty: str) -> float:
 
 # Saves a new personal best and returns whether saving was successful.
 def save_best_accuracy(filename: Path, accuracy: float, category: str, difficulty: str) -> bool:
+    """Save a new high-score record with its category, difficulty, and timestamp."""
     timestamp: str = datetime.now().strftime("%m/%d/%Y %I:%M %p")
 
     # Save a new best accuracy and report whether the save succeeded.
@@ -496,6 +501,8 @@ def save_best_accuracy(filename: Path, accuracy: float, category: str, difficult
 
 # Function for deleting all of the user's saved scores.
 def reset_high_scores(filename: Path) -> None:
+    """Ask for confirmation and clear all saved high-score records from the file."""
+
     # If the user doesn't have a file to delete, it will tell them so.
     if not filename.exists():
         print("There are no saved high scores to delete.")
